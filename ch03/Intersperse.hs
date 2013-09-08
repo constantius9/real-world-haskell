@@ -7,7 +7,9 @@ import Test.QuickCheck
 import Test.HUnit
 
 intersperse :: a -> [[a]] -> [a]
-intersperse _ _ = []
+intersperse _ []  = []
+intersperse _ [x] = x
+intersperse s xs  = head xs ++ [s] ++ intersperse s (tail xs)
 
 test_NoElements =
     intersperse ',' []
