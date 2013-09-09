@@ -18,15 +18,21 @@ data Point2D = Point2D { x :: Integer
 
 direction :: Point2D -> Point2D -> Point2D -> Direction
 direction a b c =
-    let x1 = x a
-        x2 = x b
-        x3 = x c
-        y1 = y a
-        y2 = y b
-        y3 = y c
-        k  = ((fromIntegral y1) - l) / (fromIntegral x1) :: Double
-        l  = (fromIntegral y2) - k * (fromIntegral x2) :: Double
-        s  = k * (fromIntegral x3) + l
+    let x1  = x a
+        x2  = x b
+        x3  = x c
+        y1  = y a
+        y2  = y b
+        y3  = y c
+        x1' = fromIntegral x1
+        x2' = fromIntegral x2
+        x3' = fromIntegral x3
+        y1' = fromIntegral y1
+        y2' = fromIntegral y2
+        y3' = fromIntegral y3
+        k   = (y1' - l) / x1'
+        l   = (x1' * y2' - x2' * y1') / (x1' - x2')
+        s   = k * (fromIntegral x3) + l
     in case compare s (fromIntegral y3) of
         LT    -> Right
         GT    -> Left
