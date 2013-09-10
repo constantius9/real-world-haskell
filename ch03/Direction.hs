@@ -62,6 +62,8 @@ direction a b c =
         EQ    -> Straight
 
 directionList :: [Point2D] -> [Direction]
+directionList (a:b:c:[]) = [direction a b c]
+directionList (a:b:c:d) = [direction a b c] ++ directionList ([b,c] ++ d)
 directionList _ = undefined
 
 test_Left =
