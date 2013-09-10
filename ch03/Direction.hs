@@ -61,6 +61,8 @@ direction a b c =
         LT    -> Left
         EQ    -> Straight
 
+directionList :: [Point2D] -> [Direction]
+directionList _ = undefined
 
 test_Left =
     direction (Point2D {x=0, y=0}) (Point2D {x=1, y=1}) (Point2D {x=2, y=3})
@@ -74,6 +76,35 @@ test_Right =
     direction (Point2D {x=0, y=0}) (Point2D {x=1, y=1}) (Point2D {x=2, y=1})
     @?= Right
 
+test_List3 =
+    directionList [
+        Point2D {x=0, y=0},
+        Point2D {x=1, y=1},
+        Point2D {x=2, y=1}
+    ]
+    @?= [Right]
+
+test_List5 =
+    directionList [
+        Point2D {x=0, y=0},
+        Point2D {x=1, y=1},
+        Point2D {x=2, y=1},
+        Point2D {x=3, y=2},
+        Point2D {x=4, y=3}
+    ]
+    @?= [Right, Left, Straight]
+
+test_List6 =
+    directionList [
+        Point2D {x=0, y=0},
+        Point2D {x=1, y=1},
+        Point2D {x=2, y=1},
+        Point2D {x=3, y=1},
+        Point2D {x=4, y=4},
+        Point2D {x=5, y=4}
+    ]
+    @?= [Right, Straight, Left, Right]
+
 main = defaultMain tests
 
 tests = [
@@ -84,5 +115,13 @@ tests = [
             test_Straight,
         testCase "Direction works right for right turn"
             test_Right
+        ],
+    testGroup "Direction List" [
+        testCase "Direction List works right for list of 3"
+            test_List3,
+        testCase "Direction List works right for list of 5"
+            test_List5,
+        testCase "Direction List works right for list of 6"
+            test_List6
         ]
     ]
