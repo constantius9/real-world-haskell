@@ -15,8 +15,7 @@ palindrome :: String -> String
 palindrome xs = xs ++ (reverse xs)
 
 isPalindrome :: String -> Bool
-isPalindrome xs =
-	all (uncurry (==)) $ zip xs (reverse xs)
+isPalindrome xs = xs == reverse xs
 
 byLength :: [a] -> [a] -> Ordering
 byLength xs1 xs2 = compare (length xs1) (length xs2)
