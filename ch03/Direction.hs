@@ -16,26 +16,6 @@ data Point2D = Point2D { x :: Integer
                        , y :: Integer
                        } deriving (Show, Eq, Ord)
 
-calculate_l :: Point2D -> Point2D -> Double
-calculate_l a b =
-    let x1  = x a
-        x2  = x b
-        y1  = y a
-        y2  = y b
-        x1' = fromIntegral x1
-        x2' = fromIntegral x2
-        y1' = fromIntegral y1
-        y2' = fromIntegral y2
-    in  (x1' * y2' - x2' * y1') / (x1' - x2')
-
-calculate_k :: Point2D -> Double -> Double
-calculate_k a l =
-    let x1  = x a
-        y1  = y a
-        x1' = fromIntegral x1
-        y1' = fromIntegral y1
-    in  (y1' - l) / x1'
-
 direction :: Point2D -> Point2D -> Point2D -> Direction
 direction a b c =
     let x1  = x a
@@ -44,27 +24,15 @@ direction a b c =
         y1  = y a
         y2  = y b
         y3  = y c
-        x1' = fromIntegral x1
-        x2' = fromIntegral x2
-        x3' = fromIntegral x3
-        y1' = fromIntegral y1
-        y2' = fromIntegral y2
-        y3' = fromIntegral y3
-        l   = calculate_l a b
-        k   =
-            if (x1 /= 0)
-                then calculate_k a l
-                else calculate_k b l
-        s   = k * (fromIntegral x3) + l
-    in case compare s (fromIntegral y3) of
-        GT    -> Right
-        LT    -> Left
+        s   = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1)
+    in case compare s 0 of
+        GT    -> Left
+        LT    -> Right
         EQ    -> Straight
 
 directionList :: [Point2D] -> [Direction]
 directionList (a:b:c:[]) = [direction a b c]
 directionList (a:b:c:d) = [direction a b c] ++ directionList ([b,c] ++ d)
-directionList _ = undefined
 
 test_Left =
     direction (Point2D {x=0, y=0}) (Point2D {x=1, y=1}) (Point2D {x=2, y=3})
