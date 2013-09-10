@@ -16,6 +16,26 @@ data Point2D = Point2D { x :: Integer
                        , y :: Integer
                        } deriving (Show, Eq, Ord)
 
+calculate_l :: Point2D -> Point2D -> Double
+calculate_l a b =
+    let x1  = x a
+        x2  = x b
+        y1  = y a
+        y2  = y b
+        x1' = fromIntegral x1
+        x2' = fromIntegral x2
+        y1' = fromIntegral y1
+        y2' = fromIntegral y2
+    in  (x1' * y2' - x2' * y1') / (x1' - x2')
+
+calculate_k :: Point2D -> Double -> Double
+calculate_k a l =
+    let x1  = x a
+        y1  = y a
+        x1' = fromIntegral x1
+        y1' = fromIntegral y1
+    in  (y1' - l) / x1'
+
 direction :: Point2D -> Point2D -> Point2D -> Direction
 direction a b c =
     let x1  = x a
@@ -30,12 +50,15 @@ direction a b c =
         y1' = fromIntegral y1
         y2' = fromIntegral y2
         y3' = fromIntegral y3
-        k   = (y1' - l) / x1'
-        l   = (x1' * y2' - x2' * y1') / (x1' - x2')
+        l   = calculate_l a b
+        k   =
+            if (x1 /= 0)
+                then calculate_k a l
+                else calculate_k b l
         s   = k * (fromIntegral x3) + l
     in case compare s (fromIntegral y3) of
-        LT    -> Right
-        GT    -> Left
+        GT    -> Right
+        LT    -> Left
         EQ    -> Straight
 
 
