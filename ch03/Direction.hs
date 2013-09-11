@@ -1,5 +1,7 @@
 import Prelude hiding (Left, Right)
 
+import Data.List
+
 import Test.Framework (defaultMain, testGroup)
 import Test.Framework.Providers.HUnit
 import Test.Framework.Providers.QuickCheck2 (testProperty)
@@ -33,6 +35,22 @@ direction a b c =
 directionList :: [Point2D] -> [Direction]
 directionList (a:b:c:[]) = [direction a b c]
 directionList (a:b:c:d) = [direction a b c] ++ directionList ([b,c] ++ d)
+
+comparePoints :: Point2D -> Point2D -> Ordering
+comparePoints a b
+  | y1 <  y2             = LT
+  | y1 == y2 && x1 <  x2 = LT
+  | y1 == y2 && x1 == x2 = EQ
+  | y1 == y2 && x1 >  x2 = GT
+  | y1 >  y2             = GT
+    where x1 = x a
+          x2 = x b
+          y1 = y a
+          y2 = y b
+
+sortPoints :: [Point2D] -> [Point2D]
+sortPoints l = sortBy comparePoints l
+
 
 test_Left =
     direction (Point2D {x=0, y=0}) (Point2D {x=1, y=1}) (Point2D {x=2, y=3})
@@ -75,6 +93,40 @@ test_List6 =
     ]
     @?= [Right, Straight, Left, Right]
 
+test_SortPoints =
+    sortPoints [
+        Point2D {x=1, y=3},
+        Point2D {x=0, y=0},
+        Point2D {x=5, y=4},
+        Point2D {x=3, y=1},
+        Point2D {x=2, y=2},
+        Point2D {x=4, y=5}
+    ] @?= [
+        Point2D {x=0, y=0},
+        Point2D {x=3, y=1},
+        Point2D {x=2, y=2},
+        Point2D {x=1, y=3},
+        Point2D {x=5, y=4},
+        Point2D {x=4, y=5}
+    ]
+
+test_SortPointsCoincident =
+    sortPoints [
+        Point2D {x=1, y=1},
+        Point2D {x=0, y=0},
+        Point2D {x=5, y=4},
+        Point2D {x=3, y=1},
+        Point2D {x=2, y=1},
+        Point2D {x=4, y=4}
+    ] @?= [
+        Point2D {x=0, y=0},
+        Point2D {x=1, y=1},
+        Point2D {x=2, y=1},
+        Point2D {x=3, y=1},
+        Point2D {x=4, y=4},
+        Point2D {x=5, y=4}
+    ]
+
 main = defaultMain tests
 
 tests = [
@@ -93,5 +145,11 @@ tests = [
             test_List5,
         testCase "Direction List works right for list of 6"
             test_List6
+        ],
+    testGroup "Sort List of Points" [
+        testCase "Sort Points works for all points with different y coordinates"
+            test_SortPoints,
+        testCase "Sort Points works for points with coincident y coordinates"
+            test_SortPointsCoincident
         ]
     ]
