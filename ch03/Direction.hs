@@ -87,9 +87,9 @@ instance FPEq Double where
     x =~ y = abs ( x - y ) < (1.0e-8 :: Double)
 
 (@?=~) :: (Show a, FPEq a) => a -> a -> Test.HUnit.Assertion
-(@?=~) expected actual  = expected =~ actual Test.HUnit.@? assertionMsg
+(@?=~) actual expected = actual =~ expected @? assertionMsg
     where
-      assertionMsg = "Expected : " ++ show expected ++
+      assertionMsg = "Expected : "   ++ show expected ++
                      "\nActual   : " ++ show actual
 
 
