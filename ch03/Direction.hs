@@ -73,12 +73,12 @@ euclideanNorm2D v =
 
 angleBy3Points2D :: Point2D -> Point2D -> Point2D -> Double
 angleBy3Points2D a b c =
-    let ab = vectorBy2Points a b
+    let ba = vectorBy2Points b a
         bc = vectorBy2Points b c
-        dp = dotProduct2D ab bc
-        n1 = euclideanNorm2D ab
+        dp = dotProduct2D ba bc
+        n1 = euclideanNorm2D ba
         n2 = euclideanNorm2D bc
-    in  acos( (fromIntegral dp) / (n1 + n2) )
+    in  acos( (fromIntegral dp) / (n1 * n2) )
 
 angleWithXBy2Points2D :: Point2D -> Point2D -> Double
 angleWithXBy2Points2D p@(Point2D {x=x1, y=y1}) a =
@@ -174,6 +174,22 @@ test_SortPointsCoincident =
         Point2D {x=5, y=4}
     ]
 
+test_VectorBy2Points1 =
+    vectorBy2Points Point2D {x=0,y=1} Point2D {x=1,y=0}
+    @?= Vector2D (Point2D {x=1,y=(-1)})
+
+test_VectorBy2Points2 =
+    vectorBy2Points Point2D {x=2,y=3} Point2D {x=4,y=5}
+    @?= Vector2D (Point2D {x=2,y=2})
+
+test_DotProduct2D1 =
+    dotProduct2D (Vector2D (Point2D {x=1,y=(-1)})) (Vector2D (Point2D {x=2,y=2}))
+    @?= 0
+
+test_DotProduct2D2 =
+    dotProduct2D (Vector2D (Point2D {x=3,y=(-2)})) (Vector2D (Point2D {x=4,y=1}))
+    @?= 10
+
 test_RightAngleBy3Points =
     angleBy3Points2D Point2D {x=0,y=1} Point2D {x=0,y=0} Point2D {x=1,y=0}
     @?=~ (pi / 2)
@@ -206,6 +222,18 @@ tests = [
             test_SortPoints,
         testCase "Sort Points works for points with coincident y coordinates"
             test_SortPointsCoincident
+        ],
+    testGroup "Vector By 2 Points" [
+        testCase "Vector By 2 Points case 1 is correct"
+            test_VectorBy2Points1,
+        testCase "Vector By 2 Points case 2 is correct"
+            test_VectorBy2Points2
+        ],
+    testGroup "Dot Product 2D" [
+        testCase "Dot Product 2D case 1 is correct"
+            test_DotProduct2D1,
+        testCase "Dot Product 2D case 2 is correct"
+            test_DotProduct2D2
         ],
     testGroup "Calculate Angle by 3 points" [
         testCase "Angle calculation for right angle is correct"
