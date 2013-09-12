@@ -176,7 +176,11 @@ test_SortPointsCoincident =
 
 test_RightAngleBy3Points =
     angleBy3Points2D Point2D {x=0,y=1} Point2D {x=0,y=0} Point2D {x=1,y=0}
-    @?=~ 1.5707963267948966
+    @?=~ (pi / 2)
+
+test_AngleBy3Points1 =
+    angleBy3Points2D Point2D {x=1,y=1} Point2D {x=0,y=0} Point2D {x=1,y=0}
+    @?=~ (pi / 4)
 
 main = defaultMain tests
 
@@ -205,6 +209,8 @@ tests = [
         ],
     testGroup "Calculate Angle by 3 points" [
         testCase "Angle calculation for right angle is correct"
-            test_RightAngleBy3Points
+            test_RightAngleBy3Points,
+        testCase "Angle calculation for Pi/4 angle is correct"
+            test_AngleBy3Points1
         ]
     ]
