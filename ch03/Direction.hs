@@ -80,6 +80,12 @@ angleBy3Points2D a b c =
         n2 = euclideanNorm2D bc
     in  acos( (fromIntegral dp) / (n1 + n2) )
 
+angleWithXBy2Points2D :: Point2D -> Point2D -> Double
+angleWithXBy2Points2D p@(Point2D {x=x1, y=y1}) a =
+    let b = Point2D {x=x1+1, y=y1}
+    in  angleBy3Points2D a p b
+
+
 class FPEq a where
     (=~) :: a -> a -> Bool
 
