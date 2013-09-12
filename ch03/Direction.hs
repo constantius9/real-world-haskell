@@ -51,6 +51,47 @@ comparePoints a b
 sortPoints :: [Point2D] -> [Point2D]
 sortPoints l = sortBy comparePoints l
 
+newtype Vector2D = Vector2D Point2D
+    deriving (Show, Eq, Ord)
+
+vectorBy2Points :: Point2D -> Point2D -> Vector2D
+vectorBy2Points a b =
+    let dx = x b - x a
+        dy = y b - y a
+    in  Vector2D $ Point2D {x=dx, y=dy}
+
+vectorX (Vector2D (Point2D {x=x, y=_})) = x
+vectorY (Vector2D (Point2D {x=_, y=y})) = y
+
+dotProduct2D :: Vector2D -> Vector2D -> Integer
+dotProduct2D a b =
+    vectorX a * vectorX b + vectorY a * vectorY b
+
+euclideanNorm2D :: Vector2D -> Double
+euclideanNorm2D v =
+    sqrt . fromIntegral $ (vectorX v) ^ 2 + (vectorY v) ^ 2
+
+angleBy3Points2D :: Point2D -> Point2D -> Point2D -> Double
+angleBy3Points2D a b c =
+    let ab = vectorBy2Points a b
+        bc = vectorBy2Points b c
+        dp = dotProduct2D ab bc
+        n1 = euclideanNorm2D ab
+        n2 = euclideanNorm2D bc
+    in  acos( (fromIntegral dp) / (n1 + n2) )
+
+class FPEq a where
+    (=~) :: a -> a -> Bool
+
+instance FPEq Double where
+    x =~ y = abs ( x - y ) < (1.0e-8 :: Double)
+
+(@?=~) :: (Show a, FPEq a) => a -> a -> Test.HUnit.Assertion
+(@?=~) expected actual  = expected =~ actual Test.HUnit.@? assertionMsg
+    where
+      assertionMsg = "Expected : " ++ show expected ++
+                     "\nActual   : " ++ show actual
+
 
 test_Left =
     direction (Point2D {x=0, y=0}) (Point2D {x=1, y=1}) (Point2D {x=2, y=3})
@@ -127,6 +168,10 @@ test_SortPointsCoincident =
         Point2D {x=5, y=4}
     ]
 
+test_RightAngleBy3Points =
+    angleBy3Points2D Point2D {x=0,y=1} Point2D {x=0,y=0} Point2D {x=1,y=0}
+    @?=~ 1.5707963267948966
+
 main = defaultMain tests
 
 tests = [
@@ -151,5 +196,9 @@ tests = [
             test_SortPoints,
         testCase "Sort Points works for points with coincident y coordinates"
             test_SortPointsCoincident
+        ],
+    testGroup "Calculate Angle by 3 points" [
+        testCase "Angle calculation for right angle is correct"
+            test_RightAngleBy3Points
         ]
     ]
