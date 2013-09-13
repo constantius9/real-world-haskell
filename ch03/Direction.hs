@@ -85,6 +85,41 @@ angleWithXBy2Points2D p@(Point2D {x=x1, y=y1}) a =
     let b = Point2D {x=x1+1, y=y1}
     in  angleBy3Points2D a p b
 
+angleWithXByPoint2DList :: Point2D -> [Point2D] -> [Double]
+angleWithXByPoint2DList p (a:[]) =
+    [angleWithXBy2Points2D p a]
+angleWithXByPoint2DList p (a:l) =
+    [angleWithXBy2Points2D p a] ++ angleWithXByPoint2DList p l
+
+sortedPointsByAngleWithPX :: Point2D -> [Point2D] -> [(Point2D,Double)]
+sortedPointsByAngleWithPX p l =
+    sortBy (\ (_,b1) (_,b2) -> (b1 :: Double) `compare` (b2 :: Double))
+           (zip l (angleWithXByPoint2DList p l))
+
+grahamScanInternal :: [Point2D] -> [Point2D] -> [Point2D]
+grahamScanInternal acc [] = acc
+grahamScanInternal acc l  =
+    let b  = last acc
+        a  = last (init acc)
+        c  = head l
+    in  if (direction a b c) /= Right
+        then grahamScanInternal (acc ++ [c]) (tail l)
+        else grahamScanInternal (init acc ++ [c]) (tail l)
+
+grahamScan :: [Point2D] -> [Point2D]
+grahamScan l =
+    let sp   = sortPoints l
+        p    = head sp
+        spa  = sortedPointsByAngleWithPX p l
+        bp   = head spa
+        tspa = tail spa
+        cp   = head tspa
+        tsp' = [i | (i,j) <- tspa]
+        b    = fst bp
+        c    = fst cp
+        li   = [p, b]
+    in  grahamScanInternal li tsp'
+
 
 class FPEq a where
     (=~) :: a -> a -> Bool
@@ -198,23 +233,38 @@ test_AngleBy3Points1 =
     angleBy3Points2D Point2D {x=1,y=1} Point2D {x=0,y=0} Point2D {x=1,y=0}
     @?=~ (pi / 4)
 
+test_GrahamScan1 =
+    grahamScan [
+        Point2D {x=0   , y=0} -- P
+      , Point2D {x=5   , y=2} -- A
+      , Point2D {x=4   , y=4} -- B
+      , Point2D {x=1   , y=2} -- C
+      , Point2D {x=(-1), y=3} -- D
+    ] @?= [
+        Point2D {x=0   , y=0} -- P
+      , Point2D {x=5   , y=2} -- A
+      , Point2D {x=4   , y=4} -- B
+      , Point2D {x=(-1), y=3} -- D
+      , Point2D {x=0   , y=0} -- P
+    ]
+
 main = defaultMain tests
 
 tests = [
     testGroup "Direction" [
-        testCase "Direction works right for left turn"
+        testCase "Direction for left turn"
             test_Left,
-        testCase "Direction works right for straight line"
+        testCase "Direction for straight line"
             test_Straight,
-        testCase "Direction works right for right turn"
+        testCase "Direction for right turn"
             test_Right
         ],
     testGroup "Direction List" [
-        testCase "Direction List works right for list of 3"
+        testCase "Direction List for list of 3"
             test_List3,
-        testCase "Direction List works right for list of 5"
+        testCase "Direction List for list of 5"
             test_List5,
-        testCase "Direction List works right for list of 6"
+        testCase "Direction List for list of 6"
             test_List6
         ],
     testGroup "Sort List of Points" [
@@ -224,21 +274,25 @@ tests = [
             test_SortPointsCoincident
         ],
     testGroup "Vector By 2 Points" [
-        testCase "Vector By 2 Points case 1 is correct"
+        testCase "Vector By 2 Points case 1"
             test_VectorBy2Points1,
-        testCase "Vector By 2 Points case 2 is correct"
+        testCase "Vector By 2 Points case 2"
             test_VectorBy2Points2
         ],
     testGroup "Dot Product 2D" [
-        testCase "Dot Product 2D case 1 is correct"
+        testCase "Dot Product 2D case 1"
             test_DotProduct2D1,
-        testCase "Dot Product 2D case 2 is correct"
+        testCase "Dot Product 2D case 2"
             test_DotProduct2D2
         ],
     testGroup "Calculate Angle by 3 points" [
-        testCase "Angle calculation for right angle is correct"
+        testCase "Angle calculation for right angle"
             test_RightAngleBy3Points,
-        testCase "Angle calculation for Pi/4 angle is correct"
+        testCase "Angle calculation for Pi/4 angle"
             test_AngleBy3Points1
+        ],
+    testGroup "Graham Scan" [
+        testCase "Graham scan for simple hull of 5 points"
+            test_GrahamScan1
         ]
     ]
