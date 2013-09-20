@@ -3,6 +3,8 @@
 
 import System.Environment (getArgs)
 
+import Transpose
+
 interactWith function inputFile outputFile = do
   input <- readFile inputFile
   writeFile outputFile (function input)
@@ -15,7 +17,7 @@ main = mainWith myFunction
             _ -> putStrLn "error: exactly two arguments needed"
 
         -- replace "id" with the name of our function below
-        myFunction = firstWords
+        myFunction = transpose
 
 firstWords input =
     unlines [head $ words $ line | line <- lines input, line /= []]
