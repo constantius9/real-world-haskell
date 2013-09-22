@@ -7,18 +7,25 @@ import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.QuickCheck
 import Test.HUnit
 
-convertAdd acc x =
-    let digit = (read x :: Int)
-    in  acc * 10 + digit
+isDigit c =
+    '0' <= c && c <= '9'
+
+convertAdd acc x@(c:_) =
+    if isDigit c
+        then
+            let digit = (read x :: Int)
+            in  acc * 10 + digit
+        else error $ "convertAdd: not a digit " ++ x
 
 breakAll [] = []
 breakAll (h:t) =
     [h] : breakAll t
 
 asInt_fold :: String -> Int
+asInt_fold "" = 0
 asInt_fold s@(h:t)
-    | h == '-' = (-1) * (foldl convertAdd 0 $ breakAll t)
-    | otherwise = foldl convertAdd 0 $ breakAll s
+    | h == '-'  = (-1) * (foldl convertAdd 0 $ breakAll t)
+    | otherwise = ( 1) * (foldl convertAdd 0 $ breakAll s)
 
 test_AsInt1 =
     asInt_fold "101"
