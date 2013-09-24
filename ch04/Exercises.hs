@@ -1,4 +1,5 @@
-import Prelude hiding (concat, takeWhile, groupBy)
+import Prelude hiding (concat, takeWhile, groupBy, any, cycle, words, unlines)
+import Data.List hiding (takeWhile, cycle)
 
 safeHead :: [a] -> Maybe a
 safeHead [] = Nothing
@@ -66,3 +67,18 @@ groupBy1 p h acc
 
 groupBy :: (a -> a -> Bool) -> [a] -> [[a]]
 groupBy p l = foldr (groupBy1 p) [] l
+
+any1 :: (a -> Bool) -> Bool -> [a] -> Bool
+any1 p a (h:t)
+	| a == True = True
+	| otherwise = if p h
+		then True
+		else False
+
+any :: (a -> Bool) -> [a] -> Bool
+any p l =
+	foldl' (any1 p) False [l]
+
+cycle :: [a] -> [a]
+cycle l =
+	foldr (:) l [] ++ cycle l
