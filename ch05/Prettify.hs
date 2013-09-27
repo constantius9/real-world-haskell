@@ -96,3 +96,16 @@ w `fits` _ | w < 0 = False
 w `fits` ""        = True
 w `fits` ('\n':_)  = True
 w `fits` (c:cs)    = (w - 1) `fits` cs
+
+fill :: Int -> Doc -> Doc
+fill i d =
+	case d of
+		Empty        -> fold (<>) (take i $ repeat (Char ' '))
+		Char c       -> fill (i - 1) Empty <> (Char c)
+		Text s       -> fill (i - length s) Empty <> (Text s)
+		Line         -> fill (i - 1) Empty <> (Char '\n')
+		a `Concat` b -> fill i a `Concat` b
+		a `Union` b  -> fill i a `Union` fill i b
+
+nest :: Int -> Doc -> Doc
+nest _ _ = undefined
