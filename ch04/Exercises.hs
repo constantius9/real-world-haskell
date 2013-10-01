@@ -68,6 +68,18 @@ groupBy1 p h acc
 groupBy :: (a -> a -> Bool) -> [a] -> [[a]]
 groupBy p l = foldr (groupBy1 p) [] l
 
+runLength1 :: (a -> a -> Bool) -> a -> [(Integer, a)] -> [(Integer, a)]
+runLength1 _ h [] =
+	[(1, h)]
+
+runLength1 p h acc
+	| p h e1 = (l1 + 1, e1) : (tail acc)
+	| otherwise = (1, h) : acc
+	where ha@((l1, e1):_) = acc
+
+runLength :: Eq a => [a] -> [(Integer, a)]
+runLength l = foldr (runLength1 (==)) [] l
+
 any1 :: (a -> Bool) -> Bool -> [a] -> Bool
 any1 p a (h:t)
 	| a == True = True
